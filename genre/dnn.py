@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 
 
 # A utility method to create a tf.data dataset from a Pandas Dataframe
-def df_to_dataset(dataframe, shuffle=True, batch_size=32):
+def df_to_dataset(dataframe, shuffle=True, batch_size=16):
     dataframe = dataframe.copy()
     labels = dataframe.pop('Genre')
     ds = tf.data.Dataset.from_tensor_slices((dict(dataframe), labels))
@@ -17,19 +17,6 @@ def df_to_dataset(dataframe, shuffle=True, batch_size=32):
         ds = ds.shuffle(buffer_size=len(dataframe))
     ds = ds.batch(batch_size)
     return ds
-
-# # Input builders
-# def input_fn_train:
-#   # Returns tf.data.Dataset of (x, y) tuple where y represents label's class
-#   # index.
-#   pass
-# def input_fn_eval:
-#   # Returns tf.data.Dataset of (x, y) tuple where y represents label's class
-#   # index.
-#   pass
-# def input_fn_predict:
-#   # Returns tf.data.Dataset of (x, None) tuple.
-#   pass
 
 
 DATA_FILE_PATH = "../data/data_clean.csv"
@@ -44,9 +31,16 @@ print(len(train), 'train examples')
 print(len(test), 'test examples')
 print(len(label_vocab), 'classes')
 
-# train_ds = df_to_dataset(train)
-# test_ds = df_to_dataset(test, shuffle=False)
+# Normalise data
+train_g = train.pop('Genre')
+train = (train - train.mean()) / train.std()
+train['Genre'] = train_g
 
+test_g = test.pop('Genre')
+test = (test - test.mean()) / test.std()
+test['Genre'] = test_g
+
+# Set up feature columns
 feature_columns = []
 for feature in SELECT_COLUMNS:
     if feature != 'Genre':
@@ -56,12 +50,12 @@ feature_layer = layers.DenseFeatures(feature_columns)
 
 classifier = tf.estimator.DNNClassifier(
     feature_columns=feature_columns,
-    hidden_units=[128, 128],
+    hidden_units=[16, 20, 24, 24],
     n_classes=len(label_vocab),
     label_vocabulary=label_vocab)
 
-classifier.train(input_fn=lambda: df_to_dataset(train, batch_size=5))
-metrics = classifier.evaluate(input_fn=lambda: df_to_dataset(test, shuffle=False, batch_size=5))
+classifier.train(input_fn=lambda: df_to_dataset(train))
+eval_result = classifier.evaluate(input_fn=lambda: df_to_dataset(test, shuffle=False))
 # predictions = classifier.predict(input_fn=input_fn_predict)
 
-print(metrics)
+print('\nTest set accuracy: {accuracy:0.3f}\n'.format(**eval_result))

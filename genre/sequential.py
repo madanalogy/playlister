@@ -62,16 +62,9 @@ y_test_array = y_test.to_numpy()
 desc = X_train.describe()
 MEAN = np.array(desc.T['mean'])
 STD = np.array(desc.T['std'])
-print("MEAN", MEAN)
-print("STD", STD)
-
-def normalize_numeric_data(data, mean, std):
-    # Center the data
-    return (data - mean) / std
-
 for row in X_train_array:
     for index in range(len(row)):
-        row[index] = normalize_numeric_data(row[index], MEAN[index], STD[index])
+        row[index] = row[index] - MEAN[index] / STD[index]
 
 # calculate number of output nodes
 number_of_genres = len(full_dataframe["Genre_label"].value_counts())
@@ -81,17 +74,19 @@ print("now our data looks like this: ", X_train_array[:10])
 
 # Build model
 model = tf.keras.Sequential([
-    tf.keras.layers.Dense(128, activation='relu'),
-    tf.keras.layers.Dense(128, activation='relu'),
+    tf.keras.layers.Dense(16, activation='relu'),
+    tf.keras.layers.Dense(20, activation='relu'),
+    tf.keras.layers.Dense(24, activation='relu'),
+    tf.keras.layers.Dense(24, activation='relu'),
     tf.keras.layers.Dense(number_of_genres),
 ])
 
 model.compile(
     loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    optimizer='adam',
+    # optimizer='adam',
     metrics=['accuracy'])
 
-model.fit(X_train_array, y_train_array, epochs=30)
+model.fit(X_train_array, y_train_array, epochs=100)
 
 # Normalise test data
 desc_test = X_test.describe()
@@ -102,9 +97,9 @@ print("STD_TEST: ", STD_TEST)
 
 for row in X_test_array:
     for index in range(len(row)):
-        row[index] = normalize_numeric_data(row[index], MEAN_TEST[index], STD_TEST[index])
+        row[index] = row[index] - MEAN_TEST[index] / STD_TEST[index]
 
 # evaluate model accuracy
-test_loss, test_acc = model.evaluate(X_test_array,  y_test_array, verbose=2)
+test_loss, test_acc = model.evaluate(X_test_array,  y_test_array, verbose=1)
 
 print('\nTest accuracy:', test_acc)
