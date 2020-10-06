@@ -19,7 +19,7 @@ def df_to_dataset(dataframe, shuffle=True, batch_size=16):
     return ds
 
 
-DATA_FILE_PATH = "../data/data_clean.csv"
+DATA_FILE_PATH = "data/data_clean.csv"
 SELECT_COLUMNS = ['Danceability', 'Energy', 'Key', 'Loudness', 'Mode', 'Speechness', 'Acousticness', 'Instrumentalness',
                   'Liveness', 'Valence', 'Tempo', 'Genre']
 

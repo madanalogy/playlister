@@ -14,7 +14,7 @@ right now it only has a test accuracy of slight above 13%.
 # Make numpy values easier to read.
 np.set_printoptions(precision=3, suppress=True)
 
-DATA_FILE_PATH = "../data/data_clean.csv"
+DATA_FILE_PATH = "data/data_clean.csv"
 SELECT_COLUMNS = ['Danceability', 'Energy', 'Key', 'Loudness', 'Mode', 'Speechness', 'Acousticness', 'Instrumentalness', 'Liveness', 'Valence', 'Tempo', 'Genre']
 
 full_dataframe = pd.read_csv(DATA_FILE_PATH)[SELECT_COLUMNS]
