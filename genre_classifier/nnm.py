@@ -11,9 +11,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 
-def usage():
-    print("Please specify csv data file path. E.g python nnm.py ../data/data.csv")
-
 # Takes in a list of audio paths.
 # Outputs label based on MLPClassifier
 def predict(audio_file_paths):
@@ -28,7 +25,6 @@ data_file_name = os.path.dirname(os.path.abspath(__file__)) + "/features.csv"
 try:
     data_file_name = os.path.abspath(sys.argv[1])
 except IndexError:
-    # usage()
     print("Using default features.csv")
 
 if data_file_name == None:
@@ -50,13 +46,12 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.fit_transform(X_test)
+X_test_scaled = scaler.transform(X_test)
 
 print("Beginning training...\nTrain set size: {}, Test set size: {}".format(len(X_train), len(X_test)))
 
-classifier = MLPClassifier(solver='lbfgs', alpha=1e-5, random_state=0, hidden_layer_sizes=(300, 50, 10))
-# 150, 20 best so far - 0.775
-# 300, 50, 10 - 0.78
+classifier = MLPClassifier(solver='adam', alpha=1e-5, random_state=0, hidden_layer_sizes=(300, 50, 20), max_iter=200)
+# 300, 50, 20 - 0.8
 
 classifier.fit(X_train_scaled, y_train.values.ravel())
 print("Model has been trained!")
