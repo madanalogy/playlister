@@ -50,9 +50,8 @@ X_test_scaled = scaler.transform(X_test)
 
 print("Beginning training...\nTrain set size: {}, Test set size: {}".format(len(X_train), len(X_test)))
 
-classifier = MLPClassifier(solver='lbfgs', alpha=1e-5, random_state=0, hidden_layer_sizes=(300, 150, 20))
-# 150, 20 best so far - 0.77 too
-# 300, 50, 10 - 0.77
+classifier = MLPClassifier(solver='adam', alpha=1e-5, random_state=0, hidden_layer_sizes=(300, 50, 20), max_iter=200)
+# 300, 50, 20 - 0.8
 
 classifier.fit(X_train_scaled, y_train.values.ravel())
 print("Model has been trained!")
