@@ -10,6 +10,8 @@ major_genres = ['blues', 'classical', 'country', 'disco', 'hiphop', 'jazz', 'met
 features = ['danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness', 'acousticness', 'instrumentalness',
             'liveness', 'valence', 'tempo']
 
+data = pd.read_csv('songs_with_genres.csv')
+
 
 def filter_data(data, column, value):
     return data.loc[[(value in row) for row in data[column]]]
@@ -43,9 +45,12 @@ def display_songs_2(songs):
     print(message)
 
 
-def find_songs_by_features(song_index, n=10, pca=True, components=7):
+def find_songs_by_features(song_id, n=10, pca=True, components=7):
     x = data[features]
     x_scaled = StandardScaler().fit_transform(x)
+
+    # TODO: Catch ID not in song list, retrieve features from Spotify
+    song_index = data.loc[data['id'] == song_id].index[0]
 
     if pca:
         pca = PCA(n_components=components)
@@ -94,11 +99,8 @@ if __name__ == '__main__':
         # Workflow 2
         song_id = input("Input a Spotify ID: ")
 
-        data = pd.read_csv('songs_with_genres.csv')
-        song_index = data.loc[data['id'] == song_id].index[0]
-
-        my_songs = find_songs_by_features(song_index, n=playlist_length, pca=False)
-        my_songs_PCA = find_songs_by_features(song_index, n=playlist_length, pca=True)
+        my_songs = find_songs_by_features(song_id, n=playlist_length, pca=False)
+        my_songs_PCA = find_songs_by_features(song_id, n=playlist_length, pca=True)
 
         display_songs_2(my_songs)
         display_songs_2(my_songs_PCA)
