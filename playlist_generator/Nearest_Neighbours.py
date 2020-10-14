@@ -56,16 +56,16 @@ def find_songs_by_features(song_id, n=10, pca=True, components=7):
         pca = PCA(n_components=components)
         principal_components = pca.fit_transform(x_scaled)
         song_scaled = principal_components[song_index]
-        nbrs = NearestNeighbors(n_neighbors=n + 1, algorithm='ball_tree').fit(principal_components)
+        neighbors = NearestNeighbors(n_neighbors=n + 1, algorithm='ball_tree').fit(principal_components)
     else:
         song_scaled = x_scaled[song_index]
-        nbrs = NearestNeighbors(n_neighbors=n + 1, algorithm='ball_tree').fit(x_scaled)
+        neighbors = NearestNeighbors(n_neighbors=n + 1, algorithm='ball_tree').fit(x_scaled)
 
-    distances, indices = nbrs.kneighbors(np.array([song_scaled]))
+    distances, indices = neighbors.kneighbors(np.array([song_scaled]))
 
     songs = []
-    for song_id in indices[0]:
-        songs.append(data.iloc[song_id])
+    for song in indices[0]:
+        songs.append(data.iloc[song])
 
     return songs
 
