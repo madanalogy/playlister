@@ -1,5 +1,5 @@
 from genre_classifier.nnm import get_score, predict
+from util.sentiment import extract
+from playlist_generator.Nearest_Neighbours import find_songs_by_features, find_songs_by_valence
 
-# Some simply scripts to run predict
-print(get_score())
-print(predict(['./data_audio/genres_original/blues/blues.00000.wav', './data_audio/genres_original/blues/blues.00001.wav']))
+# TODO: Implement flow

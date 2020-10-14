@@ -1,8 +1,6 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
 
-from sklearn import neighbors
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import NearestNeighbors
 from sklearn.decomposition import PCA
@@ -13,7 +11,7 @@ features = ['danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness', 
             'liveness', 'valence', 'tempo']
 
 
-def filter(data, column, value):
+def filter_data(data, column, value):
     return data.loc[[(value in row) for row in data[column]]]
 
 
@@ -45,30 +43,19 @@ def display_songs_2(songs):
     print(message)
 
 
-def find_songs_by_genre(song_index, n=10):
-    x = data[features]
-    x_scaled = StandardScaler().fit_transform(x)
-    song_scaled = x_scaled[song_index]
-
-    nbrs = NearestNeighbors(n_neighbors=n + 1, algorithm='ball_tree').fit(x_scaled)
-    distances, indices = nbrs.kneighbors(np.array([song_scaled]))
-
-    songs = []
-    for song_id in indices[0]:
-        songs.append(data.iloc[song_id])
-
-    return songs
-
-
-def find_songs_by_genre_PCA(song_index, n=10, components=7):
+def find_songs_by_features(song_index, n=10, pca=True, components=7):
     x = data[features]
     x_scaled = StandardScaler().fit_transform(x)
 
-    pca = PCA(n_components=components)
-    principalComponents = pca.fit_transform(x_scaled)
-    song_scaled = principalComponents[song_index]
+    if pca:
+        pca = PCA(n_components=components)
+        principal_components = pca.fit_transform(x_scaled)
+        song_scaled = principal_components[song_index]
+        nbrs = NearestNeighbors(n_neighbors=n + 1, algorithm='ball_tree').fit(principal_components)
+    else:
+        song_scaled = x_scaled[song_index]
+        nbrs = NearestNeighbors(n_neighbors=n + 1, algorithm='ball_tree').fit(x_scaled)
 
-    nbrs = NearestNeighbors(n_neighbors=n + 1, algorithm='ball_tree').fit(principalComponents)
     distances, indices = nbrs.kneighbors(np.array([song_scaled]))
 
     songs = []
@@ -110,8 +97,8 @@ if __name__ == '__main__':
         data = pd.read_csv('songs_with_genres.csv')
         song_index = data.loc[data['id'] == song_id].index[0]
 
-        my_songs = find_songs_by_genre(song_index, n=playlist_length)
-        my_songs_PCA = find_songs_by_genre_PCA(song_index, n=playlist_length)
+        my_songs = find_songs_by_features(song_index, n=playlist_length, pca=False)
+        my_songs_PCA = find_songs_by_features(song_index, n=playlist_length, pca=True)
 
         display_songs_2(my_songs)
         display_songs_2(my_songs_PCA)
