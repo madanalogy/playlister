@@ -11,7 +11,8 @@ WF#2: Nearest Neighbours from SongId/Features
 
 def playlist_len():
     restrictions = "Please input an integer between 1-200"
-    length_input = input("How long would you like your playlist to be? " + restrictions)
+    print("How long would you like your playlist to be? " + restrictions)
+    length_input = input()
     try:
         length = int(length_input)
         if length < 1 or length > 200:
