@@ -8,6 +8,32 @@ WF#1: Genre Classification + Sentiment Analysis
 WF#2: Nearest Neighbours from SongId/Features
 """
 
+
+def playlist_len():
+    restrictions = "Please input an integer between 1-200"
+    length_input = input("How long would you like your playlist to be? " + restrictions)
+    try:
+        length = int(length_input)
+        if length < 1 or length > 200:
+            print("Error: " + restrictions)
+        else:
+            return length
+    except ValueError:
+        print("Error: " + restrictions)
+    return 0
+
+
+def workflow_select():
+    print("How would you like to generate your playlist? Please pick from the options below:")
+    print("[1] Generate a playlist based on genre and mood")
+    print("[2] Generate a playlist based on seed song(s)")
+    workflow_input = input()
+    if workflow_input != "1" or workflow_input != "2":
+        print("Error: Please select an index from the list")
+        return 0
+    return int(workflow_input)
+
+
 """WF#1: Go through the entire process based on the steps below
 
 WF#1-1: Ask user whether he/she wants to extract the genre from an audio file or pick the genre from a list
@@ -16,6 +42,12 @@ WF#1-1-PickGenre: Set genre variable based on input (preferably indexed)
 WF#1-2: Ask user for text/phrase which should be passed to method extract
 WF#1-3: Pass genre and sentiment to method find_songs_by_valence
 """
+
+
+def workflow_1(playlist_length):
+    # TODO: Implementation of WF#1
+    return []
+
 
 """WF#2: Go through the entire process based on the steps below
 
@@ -26,5 +58,32 @@ WF#2-4: Ask user if seed list complete, if no go back to #WF2-1 (threshold n-1)
 WF#2-5: Pass seed list to method find_songs_by_features
 """
 
-"""Print out list of songs generated for playlist"""
 
+def workflow_2(playlist_length):
+    # TODO: Implementation of WF#2
+    return []
+
+
+"""Go through entire sequence and print out generated playlist"""
+
+
+def process():
+    playlist_length = 0
+    while playlist_length == 0:
+        playlist_length = playlist_len()
+
+    workflow = 0
+    while workflow == 0:
+        workflow = workflow_select()
+
+    playlist = []
+    if workflow == 1:
+        playlist = workflow_1(playlist_length)
+    elif workflow == 2:
+        playlist = workflow_2(playlist_length)
+
+    for song in playlist:
+        print(song)
+
+
+process()
