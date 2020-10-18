@@ -81,8 +81,8 @@ def workflow_1(playlist_length):
     if genre_select == 1:
         genre = predict(input("Please input path to audio file: "))
     elif genre_select == 2:
-        genre_id = 0
-        while genre_id == 0:
+        genre_id = -1
+        while genre_id == -1:
             genre_id = select_genre_list()
         genre = major_genres[genre_id]
 
