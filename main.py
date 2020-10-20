@@ -259,8 +259,9 @@ def workflow_2(playlist_length):
             if option == '2':
                 seeds = remove_seed(seeds)
             elif option == '3':
-                songs = [find_song_index(seed) for seed in seeds]
-                playlist_songs = find_songs_by_features(songs)
+                song_indices = [find_song_index(seed) for seed in seeds]
+                for song_index in song_indices:
+                    playlist_songs.append(find_songs_by_features([song_index]))
                 finished_workflow = True
         else:
             print('Invalid option. Please try again.')
@@ -285,12 +286,13 @@ def process():
         playlist = workflow_1(playlist_length)
         display_songs_1(playlist)
     elif workflow == 2:
-        playlist = workflow_2(playlist_length)
+        playlists = workflow_2(playlist_length)
 
-        if playlist is None:
+        if playlists is None:
             print('Cancelled')
         else:
-            display_songs_2(playlist)
+            for playlist in playlists:
+                display_songs_2(playlist)
 
     print('FINISHED')
 
