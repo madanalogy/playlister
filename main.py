@@ -1,6 +1,11 @@
 from genre_classifier.nnm import predict
 from util.sentiment import extract
-from playlist_generator.Nearest_Neighbours import find_songs_by_features, find_songs_by_valence, major_genres
+# from playlist_generator.Nearest_Neighbours import find_songs_by_features, find_songs_by_valence, major_genres
+from bisect import insort
+"""
+Initialization:
+workflow_1_data =
+"""
 
 """Ask user how long they want the playlist to be (n) and to pick the workflow
 
@@ -29,7 +34,7 @@ def workflow_select():
     print("[1] Generate a playlist based on genre and mood")
     print("[2] Generate a playlist based on seed song(s)")
     workflow_input = input()
-    if workflow_input != "1" or workflow_input != "2":
+    if workflow_input != "1" and workflow_input != "2":
         print("Error: Please select an index from the list")
         return 0
     return int(workflow_input)
@@ -100,10 +105,195 @@ WF#2-4: Ask user if seed list complete, if no go back to #WF2-1 (threshold n-1)
 WF#2-5: Pass seed list to method find_songs_by_features
 """
 
+songs = [
+    "Patato",
+    "Petato",
+    "Pitato",
+    "Potato",
+    "Putato",
+    "Poteto",
+    "Potito",
+    "Pototo",
+    "Potuto",
+    "Potata",
+    "Potate",
+    "Potati",
+    "Potatu",
+]
+
+songs = [song.strip().lower() for song in songs]
+
+def select_option(options):
+    num_options = len(options)
+
+    for i in range(num_options):
+        print(f'[{i}] {options[i]}')
+
+    option = int(input()) # TODO: error checking
+    valid_option = option >= 0 and option < num_options
+
+    return (option, valid_option)
+
+def input_bool(message):
+    print(message)
+    while True:
+        print('[y] Yes')
+        print('[n] No')
+        try_again = input() # TODO: error checking
+        if try_again == 'y':
+            return True
+        if try_again == 'n':
+            return False
+        print('What was that?')
+
+def find_songs_by_keyword(keyword):
+    matching_songs = []
+    for song in songs:
+        if keyword in song:
+            matching_songs.append(song)
+
+    return matching_songs
+
+def find_seed_songs():
+    matching_songs = []
+
+    finding_songs = True
+    while finding_songs:
+        print('Find songs containing the keyword: ', end='')
+        keyword = input().strip().lower()
+        matching_songs = find_songs_by_keyword(keyword)
+        if matching_songs:
+            finding_songs = False
+        else:
+            print(f'Sorry. No songs matched the keyword "{keyword}".')
+            finding_songs = input_bool('Try another keyword?')
+
+    return matching_songs
+
+def select_seed_song(songs):
+    song = None
+
+    selecting_song = True
+    while selecting_song:
+        print('Select the index of the song that you wish to add: ')
+        (index, valid_index) = select_option(songs)
+
+        if not valid_index:
+            print(f'Sorry. There is no song at index "{index}".')
+            selecting_song = input_bool("Try another index?")
+
+        else:
+            song = songs[index]
+            selecting_song = False
+
+    return song
+
+def add_seed(seeds):
+    unique_seeds = set(seeds)
+
+    running = True
+    while running:
+        # matching_songs = []
+
+        # Find all songs matching a keyword
+        songs = find_seed_songs()
+
+        # finding_songs = True
+        # while finding_songs:
+        #     print('Find songs containing the keyword: ', end='')
+        #     keyword = input().strip().lower()
+        #     matching_songs = find_songs_by_keyword(keyword)
+        #     if matching_songs:
+        #         finding_songs = False
+        #     else:
+        #         print(f'Sorry. No songs matched the keyword "{keyword}".')
+        #         finding_songs = input_bool('Try another keyword?')
+
+        if not songs:
+            break
+
+        # Select a song from the search results
+        song = select_seed_song(songs)
+
+        if song is not None:
+            unique_seeds.add(song)
+            print(f'Added: {song}')
+
+        # selecting_song = True
+        # while selecting_song:
+        #     print('Select the index of the song that you wish to add: ')
+        #     (index, valid_index) = select_option(matching_songs)
+
+        #     if not valid_index:
+        #         print(f'Sorry. There is no song at index "{index}".')
+        #         selecting_song = input_bool("Try another index?")
+
+        #     else:
+        #         song = matching_songs[index]
+        #         unique_seeds.add(song)
+
+        #         selecting_song = False
+        #         print(f'Added: {song}')
+
+        running = input_bool('Add another song?:')
+
+    return sorted(unique_seeds)
+
+def remove_seed(seeds):
+    updated_seeds = seeds
+    running = True
+
+    while running:
+        print('Select the index of the song that you wish to remove: ')
+        (index, valid_index) = select_option(seeds)
+
+        if not valid_index:
+            print(f'Sorry. There is no song at index "{index}".')
+            running = input_bool("Try another index?")
+
+        else:
+            song = updated_seeds.pop(index)
+
+            print(f'Removed: {song}')
+
+            if not updated_seeds:
+                print('No more songs to remove.')
+                running = False
+            else:
+                running = input_bool('Remove another song?')
+
+    return updated_seeds
 
 def workflow_2(playlist_length):
-    # TODO: Implementation of WF#2
-    return []
+    seeds = []
+    playlist_songs = []
+    finished_workflow = False
+
+    while not finished_workflow:
+        print(f'Seeds: {seeds}')
+        print('Please pick from the options below:')
+        print('[1] Add song')
+        if seeds:
+            print('[2] Remove song')
+            print('[3] Generate playlist')
+        print('[0] Cancel')
+
+        option = input()
+
+        if option == '0':
+            return None
+        if option == '1':
+            seeds = add_seed(seeds)
+        elif seeds:
+            if option == '2':
+                seeds = remove_seed(seeds)
+            elif option == '3':
+                #playlist_songs = generate_playlist(list(seeds))
+                finished_workflow = True
+        else:
+            print('Invalid option. Please try again.')
+
+    return playlist_songs
 
 
 """Go through entire sequence and print out generated playlist"""
