@@ -120,14 +120,14 @@ def get_song_option_label(i, song_name):
     return f'{index} {song_name}\n{indent} by {artists}'
 
 
-def select_option(options, option_label_fn=get_default_option_label):
+def select_option(options, option_label_fn=get_default_option_label, message=""):
     num_options = len(options)
 
     for i, option in enumerate(options, start=1):
         option_label = option_label_fn(i, option)
         print(option_label)
 
-    option = input() # TODO: error checking
+    option = input(message) # TODO: error checking
     valid_option = False
 
     try:
@@ -176,8 +176,9 @@ def select_seed_song_name(song_names):
 
     selecting_song = True
     while selecting_song:
-        print('Select the index of the song that you wish to add: ')
-        (index, valid_index) = select_option(song_names, option_label_fn=get_song_option_label)
+        # print('Select the index of the song that you wish to add: ')
+        (index, valid_index) = select_option(song_names,
+            option_label_fn=get_song_option_label, message='Select the index of the song that you wish to add: ')
 
         if not valid_index:
             print(f'Sorry. There is no song at index "{index}".')
@@ -188,6 +189,17 @@ def select_seed_song_name(song_names):
             selecting_song = False
 
     return song_name
+
+
+def display_seeds(seeds):
+    print(f'Seeds:')
+    for i, song_name in enumerate(seeds, start=1):
+        song = find_spotify_info(song_name)
+        name = song['name']
+        artists = song.artists
+        print(f'[{i}] {name} by {artists}')
+    print()
+
 
 def add_seed(seeds):
     unique_seeds = set(seeds)
@@ -241,12 +253,12 @@ def workflow_2(playlist_length):
     finished_workflow = False
 
     while not finished_workflow:
-        print(f'Seeds: {seeds}')
         print('Please pick from the options below:')
-        print('[1] Add song')
+        print('[1] Display seeds')
+        print('[2] Add song')
         if seeds:
-            print('[2] Remove song')
-            print('[3] Generate playlist')
+            print('[3] Remove song')
+            print('[4] Generate playlist')
         print('[0] Cancel')
 
         option = input()
@@ -254,11 +266,13 @@ def workflow_2(playlist_length):
         if option == '0':
             return None
         if option == '1':
+            display_seeds(seeds)
+        elif option == '2':
             seeds = add_seed(seeds)
         elif seeds:
-            if option == '2':
+            if option == '3':
                 seeds = remove_seed(seeds)
-            elif option == '3':
+            elif option == '4':
                 song_indices = [find_song_index(seed) for seed in seeds]
                 for song_index in song_indices:
                     playlist_songs.append(find_songs_by_features([song_index]))
