@@ -148,14 +148,6 @@ def input_bool(message):
             return False
         print('What was that?')
 
-# def find_songs_by_keyword(keyword):
-#     matching_songs = []
-#     for song in songs:
-#         if keyword in song:
-#             matching_songs.append(song)
-
-#     return matching_songs
-
 def find_seed_songs(songs=songs):
     matching_songs = []
 
@@ -288,8 +280,13 @@ def process():
     elif workflow == 2:
         playlist = workflow_2(playlist_length)
 
-    for song in playlist:
-        print(song)
+    if playlist is None:
+        print('Cancelled')
+    else:
+        for song in playlist:
+            print(song)
+
+    print('FINISHED')
 
 
 process()
