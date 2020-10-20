@@ -121,16 +121,18 @@ songs = [
     "Potatu",
 ]
 
+songs = list('abcdefghijklmnopqrstuvwxyz')
+
 songs = [song.strip().lower() for song in songs]
 
-def select_option(options):
+def select_option(options, wrap=0):
     num_options = len(options)
 
-    for i in range(num_options):
-        print(f'[{i}] {options[i]}')
+    for i, option in enumerate(options, start=1):
+        print(f'[{i}] {option}')
 
     option = int(input()) # TODO: error checking
-    valid_option = option >= 0 and option < num_options
+    valid_option = option > 0 and option <= num_options
 
     return (option, valid_option)
 
@@ -139,29 +141,33 @@ def input_bool(message):
     while True:
         print('[y] Yes')
         print('[n] No')
-        try_again = input() # TODO: error checking
+        try_again = input().strip().lower() # TODO: error checking
         if try_again == 'y':
             return True
         if try_again == 'n':
             return False
         print('What was that?')
 
-def find_songs_by_keyword(keyword):
-    matching_songs = []
-    for song in songs:
-        if keyword in song:
-            matching_songs.append(song)
+# def find_songs_by_keyword(keyword):
+#     matching_songs = []
+#     for song in songs:
+#         if keyword in song:
+#             matching_songs.append(song)
 
-    return matching_songs
+#     return matching_songs
 
-def find_seed_songs():
+def find_seed_songs(songs=songs):
     matching_songs = []
 
     finding_songs = True
     while finding_songs:
         print('Find songs containing the keyword: ', end='')
         keyword = input().strip().lower()
-        matching_songs = find_songs_by_keyword(keyword)
+
+        for song in songs:
+            if keyword in song:
+                matching_songs.append(song)
+
         if matching_songs:
             finding_songs = False
         else:
@@ -183,7 +189,7 @@ def select_seed_song(songs):
             selecting_song = input_bool("Try another index?")
 
         else:
-            song = songs[index]
+            song = songs[index - 1]
             selecting_song = False
 
     return song
@@ -193,47 +199,16 @@ def add_seed(seeds):
 
     running = True
     while running:
-        # matching_songs = []
-
         # Find all songs matching a keyword
         songs = find_seed_songs()
-
-        # finding_songs = True
-        # while finding_songs:
-        #     print('Find songs containing the keyword: ', end='')
-        #     keyword = input().strip().lower()
-        #     matching_songs = find_songs_by_keyword(keyword)
-        #     if matching_songs:
-        #         finding_songs = False
-        #     else:
-        #         print(f'Sorry. No songs matched the keyword "{keyword}".')
-        #         finding_songs = input_bool('Try another keyword?')
-
         if not songs:
             break
 
         # Select a song from the search results
         song = select_seed_song(songs)
-
         if song is not None:
             unique_seeds.add(song)
             print(f'Added: {song}')
-
-        # selecting_song = True
-        # while selecting_song:
-        #     print('Select the index of the song that you wish to add: ')
-        #     (index, valid_index) = select_option(matching_songs)
-
-        #     if not valid_index:
-        #         print(f'Sorry. There is no song at index "{index}".')
-        #         selecting_song = input_bool("Try another index?")
-
-        #     else:
-        #         song = matching_songs[index]
-        #         unique_seeds.add(song)
-
-        #         selecting_song = False
-        #         print(f'Added: {song}')
 
         running = input_bool('Add another song?:')
 
@@ -252,8 +227,7 @@ def remove_seed(seeds):
             running = input_bool("Try another index?")
 
         else:
-            song = updated_seeds.pop(index)
-
+            song = updated_seeds.pop(index - 1)
             print(f'Removed: {song}')
 
             if not updated_seeds:
