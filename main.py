@@ -5,10 +5,7 @@ from playlist_generator.Nearest_Neighbours import find_song_index, find_spotify_
 from playlist_generator.Nearest_Neighbours import find_songs_by_features, find_songs_by_valence
 from playlist_generator.Nearest_Neighbours import display_songs_1, display_songs_2
 from bisect import insort
-"""
-Initialization:
-workflow_1_data =
-"""
+
 
 """Ask user how long they want the playlist to be (n) and to pick the workflow
 
@@ -127,7 +124,7 @@ def select_option(options, option_label_fn=get_default_option_label, message="")
         option_label = option_label_fn(i, option)
         print(option_label)
 
-    option = input(message) # TODO: error checking
+    option = input(message)
     valid_option = False
 
     try:
