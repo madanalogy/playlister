@@ -3,8 +3,7 @@ from util.sentiment import extract
 from playlist_generator.Nearest_Neighbours import major_genres
 from playlist_generator.Nearest_Neighbours import find_song_index, find_spotify_info, find_songs_by_keyword
 from playlist_generator.Nearest_Neighbours import find_songs_by_features, find_songs_by_valence
-from playlist_generator.Nearest_Neighbours import display_songs_1, display_songs_2
-from bisect import insort
+from playlist_generator.Nearest_Neighbours import display_songs
 
 
 """Ask user how long they want the playlist to be (n) and to pick the workflow
@@ -55,7 +54,7 @@ def select_genre_method():
     print("[1] Extract genre from an audio file")
     print("[2] Select genre from predefined list")
     genre_select = input()
-    if genre_select != "1" or genre_select != "2":
+    if genre_select != "1" and genre_select != "2":
         print("Error: Please select an index from the list")
         return 0
     return int(genre_select)
@@ -91,6 +90,7 @@ def workflow_1(playlist_length):
             genre_id = select_genre_list()
         genre = major_genres[genre_id]
 
+    print(genre)
     valence = extract(input("How would you like your playlist to feel?: "))
 
     return find_songs_by_valence(genre, valence, playlist_length)
@@ -248,10 +248,12 @@ def workflow_2(playlist_length):
     seeds = []
     playlist_songs = []
     finished_workflow = False
+    seed_limit = playlist_length
 
     while not finished_workflow:
         print('Please pick from the options below:')
         print('[1] Display seeds')
+        # if len(seeds) < seed_limit:
         print('[2] Add song')
         if seeds:
             print('[3] Remove song')
@@ -262,19 +264,29 @@ def workflow_2(playlist_length):
 
         if option == '0':
             return None
+
         if option == '1':
             display_seeds(seeds)
-        elif option == '2':
+            continue
+
+        if option == '2':
+            # if len(seeds) < seed_limit:
             seeds = add_seed(seeds)
-        elif seeds:
-            if option == '3':
+            continue
+
+        if option == '3':
+            if seeds:
                 seeds = remove_seed(seeds)
-            elif option == '4':
+                continue
+
+        if option == '4':
+            if seeds:
                 song_indices = [find_song_index(seed) for seed in seeds]
                 playlist_songs = find_songs_by_features(song_indices)
                 finished_workflow = True
-        else:
-            print('Invalid option. Please try again.')
+                continue
+
+        print('Invalid option. Please try again.')
 
     return playlist_songs
 
@@ -294,14 +306,13 @@ def process():
     playlist = []
     if workflow == 1:
         playlist = workflow_1(playlist_length)
-        display_songs_1(playlist)
     elif workflow == 2:
         playlist = workflow_2(playlist_length)
 
-        if playlist is None:
-            print('Cancelled')
-        else:
-            display_songs_2(playlist)
+    if playlist is None:
+        print('Cancelled')
+    else:
+        display_songs(playlist)
 
     print('FINISHED')
 

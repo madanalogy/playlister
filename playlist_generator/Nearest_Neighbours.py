@@ -14,8 +14,14 @@ major_genres = ['blues', 'classical', 'country', 'disco', 'hiphop', 'jazz', 'met
 features = ['danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness',
     'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo']
 
-data_file_name = os.path.dirname(os.path.abspath(__file__)) + "/songs_with_genres.csv"
-data = pd.read_csv(data_file_name)
+
+def get_file_path(file):
+    return f'{data_dir}/{file}'
+
+
+data_dir = os.path.dirname(os.path.abspath(__file__))
+# data_file_name = os.path.dirname(os.path.abspath(__file__)) + "/songs_with_genres.csv"
+data = pd.read_csv(get_file_path('songs_with_genres.csv'))
 
 
 spotify_song_names = data['simple_name'].sort_values()
@@ -38,29 +44,13 @@ def find_songs_by_keyword(keyword):
     return songs
 
 
-def display_songs_1(songs, genre, valence):
-    message = f'Genre: {genre}\n'
-    message += f'Valence: {valence}\n'
-    message += f'Songs:\n'
+def display_songs(songs):
+    message = f'Your Playlist:\n'
+    # Number playlist songs from 1 onwards
     list_number = 1
-
-    # Only one song, so first list of indices
-    for i, song in songs.iterrows():
-        message += f'{list_number:2d}. {song["name"]} by {song.artists}\n'
+    for _, song in songs.iterrows():
+        message += f'{list_number:2d}. {song["name"]} [by {song.artists}]\n'
         list_number += 1
-
-    print(message)
-
-
-def display_songs_2(songs):
-    main_song = songs[0]
-    # message = f'Song: {main_song["name"]} by {main_song.artists}\n'
-    message = 'Neighbors:\n'
-
-    # Only one song, so first list of indices
-    for i, song in enumerate(songs, start=1):
-        message += f'{i:2d}. {song["name"]} by {song.artists}\n'
-
     print(message)
 
 
@@ -82,20 +72,16 @@ def find_songs_by_features(seeds, n=10, pca=True, components=7):
     aggregate_features = np.array([np.array(rows_with_seeds).mean(axis=0)])
     distances, indices = neighbors.kneighbors(aggregate_features)
 
-    songs = []
-    for song_index in indices[0]:
-        songs.append(data.iloc[song_index])
-
+    songs = data.iloc[indices[0]]
     if len(seeds) <= 1:
         songs = songs[1:]
     else:
         songs = songs[:-1]
-
     return songs
 
 
 def find_songs_by_valence(genre, valence, n=10):
-    data = pd.read_csv('popular_' + genre + '_songs.csv')
+    data = pd.read_csv(get_file_path(f'popular_{genre}_songs.csv'))
     diff = []
     for i, song in data.iterrows():
         diff.append(abs(song['valence'] - valence))
