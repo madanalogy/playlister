@@ -198,7 +198,7 @@ def display_seeds(seeds):
     print()
 
 
-def add_seed(seeds):
+def add_seed(seeds, limit=None):
     unique_seeds = set(seeds)
 
     running = True
@@ -214,7 +214,11 @@ def add_seed(seeds):
             unique_seeds.add(song_name)
             print(f'Added: {song_name}')
 
-        running = input_bool('Add another song?:')
+        if limit is not None and len(unique_seeds) >= limit:
+            print('Reached seed limit.')
+            running = False
+        else:
+            running = input_bool('Add another song?')
 
     return sorted(unique_seeds)
 
@@ -253,8 +257,8 @@ def workflow_2(playlist_length):
     while not finished_workflow:
         print('Please pick from the options below:')
         print('[1] Display seeds')
-        # if len(seeds) < seed_limit:
-        print('[2] Add song')
+        if len(seeds) < seed_limit:
+            print('[2] Add song')
         if seeds:
             print('[3] Remove song')
             print('[4] Generate playlist')
@@ -270,9 +274,9 @@ def workflow_2(playlist_length):
             continue
 
         if option == '2':
-            # if len(seeds) < seed_limit:
-            seeds = add_seed(seeds)
-            continue
+            if len(seeds) < seed_limit:
+                seeds = add_seed(seeds, seed_limit)
+                continue
 
         if option == '3':
             if seeds:
