@@ -15,14 +15,12 @@ features = ['danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness',
     'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo']
 
 
+data_dir = os.path.dirname(os.path.abspath(__file__))
 def get_file_path(file):
     return f'{data_dir}/{file}'
 
 
-data_dir = os.path.dirname(os.path.abspath(__file__))
-# data_file_name = os.path.dirname(os.path.abspath(__file__)) + "/songs_with_genres.csv"
 data = pd.read_csv(get_file_path('songs_with_genres.csv'))
-
 
 spotify_song_names = data['simple_name'].sort_values()
 song_index_by_name = {simple_name: i for i, simple_name in data['simple_name'].iteritems()}
