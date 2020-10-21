@@ -16,30 +16,26 @@ features = ['danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness',
 
 
 data_dir = os.path.dirname(os.path.abspath(__file__))
+
+
 def get_file_path(file):
     return f'{data_dir}/{file}'
 
 
 data = pd.read_csv(get_file_path('songs_with_genres.csv'))
-
 spotify_song_names = data['simple_name'].sort_values()
-song_index_by_name = {simple_name: i for i, simple_name in data['simple_name'].iteritems()}
 
 
-def find_spotify_info(song_name):
-    return data.iloc[song_index_by_name[song_name]]
+def find_spotify_info(song_number):
+    return data.iloc[song_number]
 
 
-def find_song_index(song_name):
-    return song_index_by_name[song_name]
-
-
-def find_songs_by_keyword(keyword):
-    songs = []
-    for song_name in spotify_song_names:
+def find_song_numbers_by_keyword(keyword):
+    song_numbers = []
+    for i, song_name in spotify_song_names.iteritems():
         if keyword in song_name:
-            songs.append(song_name)
-    return songs
+            song_numbers.append(i)
+    return song_numbers
 
 
 def display_songs(songs):
@@ -47,7 +43,7 @@ def display_songs(songs):
     # Number playlist songs from 1 onwards
     list_number = 1
     for _, song in songs.iterrows():
-        message += f'{list_number:2d}. {song["name"]} [by {song.artists}]\n'
+        message += f'{list_number}. {song["name"]} [by {song.artists}]\n'
         list_number += 1
     print(message)
 
