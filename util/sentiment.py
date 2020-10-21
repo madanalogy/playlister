@@ -1,4 +1,4 @@
-from textblob import TextBlob
+# from textblob import TextBlob
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 
@@ -6,17 +6,17 @@ def extract(string, use='vader'):
     if string is None or string == '':
         return -1
 
-    if use == 'blob':
-        blob = TextBlob(string)
-        polarity, subjectivity = blob.sentiment
-        return (polarity + 1) / 2
+    # if use == 'blob':
+    #    blob = TextBlob(string)
+    #    polarity, subjectivity = blob.sentiment
+    #    return (polarity + 1) / 2
 
     if use == 'vader':
         # Create a SentimentIntensityAnalyzer object.
         sid_obj = SentimentIntensityAnalyzer()
 
         # polarity_scores method of SentimentIntensityAnalyzer
-        # oject gives a sentiment dictionary.
+        # object gives a sentiment dictionary.
         # which contains pos, neg, neu, and compound scores.
         sentiment_dict = sid_obj.polarity_scores(string)
 

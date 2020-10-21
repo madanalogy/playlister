@@ -1,95 +1,77 @@
+import os
+
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
 
-from sklearn import neighbors
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import NearestNeighbors
 from sklearn.decomposition import PCA
 
-def filter(data, column, value):
-    return data.loc[[(value in row) for row in data[column]]]
-
-def display_songs(songs):
-    main_song = songs[0]
-    message = f'Song: {main_song["name"]} by {main_song.artists}\n'
-    message += 'Neighbors:\n'
-    list_number = 1
-
-    # Only one song, so first list of indices
-    for song in songs[1:]:
-        message += f'{list_number:2d}. {song["name"]} by {song.artists}\n'
-        list_number += 1
-
-    print(message)
-
-def find_songs_by_genre(song, n=10):
-    song_genre = song.genres[0] # first genre
-    song_features = song[features]
-
-    song_datas = data.append(song)
-    x = song_datas[features]
-    x_scaled = StandardScaler().fit_transform(x)
-    song_scaled = x_scaled[len(x_scaled) - 1]
-
-    nbrs = NearestNeighbors(n_neighbors = n + 1, algorithm = 'ball_tree').fit(x_scaled)
-    distances, indices = nbrs.kneighbors(np.array([song_scaled]))
-
-    songs = []
-    for song_id in indices[0]:
-        songs.append(song_datas.iloc[song_id])
-
-    return songs
-
-def find_songs_by_genre_PCA(song, n=10, components=6):
-    song_genre = song.genres[0] # first genre
-    song_features = song[features]
-
-    song_datas = data.append(song)
-    x = song_datas[features]
-    x_scaled = StandardScaler().fit_transform(x)
-
-    pca = PCA(n_components=components)
-    principalComponents = pca.fit_transform(x_scaled)
-    song_scaled = principalComponents[len(principalComponents) - 1]
-
-    nbrs = NearestNeighbors(n_neighbors = n + 1, algorithm = 'ball_tree').fit(principalComponents)
-    distances, indices = nbrs.kneighbors(np.array([song_scaled]))
-
-    songs = []
-    for song_id in indices[0]:
-        songs.append(song_datas.iloc[song_id])
-
-    return songs
-
-def find_songs_by_valence(song, n=10):
-    song_genre = song.genres[0] # first genre
-    song_features = song[features]
-
-    song_datas = data.append(song)
-    x = song_datas[features]
-    x_scaled = StandardScaler().fit_transform(x)
-    song_scaled = x_scaled[len(x_scaled) - 1]
-
-    nbrs = NearestNeighbors(n_neighbors = n + 1, algorithm = 'ball_tree').fit(x_scaled)
-    distances, indices = nbrs.kneighbors(np.array([song_scaled]))
-
-    songs = []
-    for song_id in indices[0]:
-        songs.append(song_datas.iloc[song_id])
-
-    return songs
-
+# from unidecode import unidecode
 
 major_genres = ['blues', 'classical', 'country', 'disco', 'hiphop', 'jazz', 'metal', 'pop', 'reggae', 'rock']
-features = ['danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo']
 
-# TODO input query genre
-data = pd.read_csv('popular_pop_songs.csv')
+features = ['danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness',
+    'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo']
 
-# TODO input song needs to be based on name and artist
-my_songs = find_songs_by_genre(data.iloc[0]) 
-my_songs_PCA = find_songs_by_genre_PCA(data.iloc[0])
 
-display_songs(my_songs)
-display_songs(my_songs_PCA)
+data_dir = os.path.dirname(os.path.abspath(__file__))
+
+
+def get_file_path(file):
+    return f'{data_dir}/{file}'
+
+
+data = pd.read_csv(get_file_path('songs_with_genres.csv'))
+spotify_song_names = data['simple_name'].sort_values()
+
+
+def find_spotify_info(song_number):
+    return data.iloc[song_number]
+
+
+def find_song_numbers_by_keyword(keyword):
+    song_numbers = []
+    for i, song_name in spotify_song_names.iteritems():
+        if keyword in song_name:
+            song_numbers.append(i)
+    return song_numbers
+
+
+def find_songs_by_features(seeds, n=10, pca=True, components=7):
+    x = data[features]
+    x_scaled = StandardScaler().fit_transform(x)
+
+    # TODO: Catch ID not in song list, retrieve features from Spotify
+
+    if pca:
+        pca = PCA(n_components=components)
+        principal_components = pca.fit_transform(x_scaled)
+        rows_with_seeds = principal_components[seeds]
+        neighbors = NearestNeighbors(n_neighbors=n + 1, algorithm='ball_tree').fit(principal_components)
+    else:
+        rows_with_seeds = x_scaled[seeds]
+        neighbors = NearestNeighbors(n_neighbors=n + 1, algorithm='ball_tree').fit(x_scaled)
+
+    aggregate_features = np.array([np.array(rows_with_seeds).mean(axis=0)])
+    distances, indices = neighbors.kneighbors(aggregate_features)
+
+    songs = data.iloc[indices[0]]
+    if len(seeds) <= 1:
+        songs = songs[1:]
+    else:
+        songs = songs[:-1]
+    return songs
+
+
+def find_songs_by_valence(genre, valence, n=10):
+    data = pd.read_csv(get_file_path(f'popular_{genre}_songs.csv'))
+    diff = []
+    for i, song in data.iterrows():
+        diff.append(abs(song['valence'] - valence))
+
+    data['diff'] = diff
+
+    data = data.sort_values(['diff', 'popularity'], ascending=[True, False])
+    songs = data.head(n)
+    return songs
