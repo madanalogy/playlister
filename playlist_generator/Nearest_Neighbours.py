@@ -54,14 +54,12 @@ def display_songs_1(songs, genre, valence):
 
 def display_songs_2(songs):
     main_song = songs[0]
-    message = f'Song: {main_song["name"]} by {main_song.artists}\n'
-    message += 'Neighbors:\n'
-    list_number = 1
+    # message = f'Song: {main_song["name"]} by {main_song.artists}\n'
+    message = 'Neighbors:\n'
 
     # Only one song, so first list of indices
-    for song in songs[1:]:
-        message += f'{list_number:2d}. {song["name"]} by {song.artists}\n'
-        list_number += 1
+    for i, song in enumerate(songs, start=1):
+        message += f'{i:2d}. {song["name"]} by {song.artists}\n'
 
     print(message)
 
@@ -81,11 +79,17 @@ def find_songs_by_features(seeds, n=10, pca=True, components=7):
         rows_with_seeds = x_scaled[seeds]
         neighbors = NearestNeighbors(n_neighbors=n + 1, algorithm='ball_tree').fit(x_scaled)
 
-    distances, indices = neighbors.kneighbors(np.array(rows_with_seeds))
+    aggregate_features = np.array([np.array(rows_with_seeds).mean(axis=0)])
+    distances, indices = neighbors.kneighbors(aggregate_features)
 
     songs = []
     for song_index in indices[0]:
         songs.append(data.iloc[song_index])
+
+    if len(seeds) <= 1:
+        songs = songs[1:]
+    else:
+        songs = songs[:-1]
 
     return songs
 
