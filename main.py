@@ -1,9 +1,9 @@
 from genre_classifier.nnm import predict
 from util.sentiment import extract
-from playlist_generator.Nearest_Neighbours import major_genres
+from playlist_generator.Nearest_Neighbours import major_genres, data
 from playlist_generator.Nearest_Neighbours import find_spotify_info, find_song_numbers_by_keyword
 from playlist_generator.Nearest_Neighbours import find_songs_by_features, find_songs_by_valence
-
+import random
 
 """Ask user how long they want the playlist to be (n) and to pick the workflow
 
@@ -31,11 +31,12 @@ def workflow_select():
     print("How would you like to generate your playlist? Please pick from the options below:")
     print("[1] Generate a playlist based on genre and mood")
     print("[2] Generate a playlist based on seed song(s)")
+    print("[3] Generate a random playlist")
     workflow_input = input()
-    if workflow_input != "1" and workflow_input != "2":
-        print("Error: Please select an index from the list")
-        return 0
-    return int(workflow_input)
+    if workflow_input in ["1", "2", "3"]:
+        return int(workflow_input)
+    print("Error: Please select an index from the list")
+    return 0
 
 
 """WF#1: Go through the entire process based on the steps below
@@ -82,7 +83,7 @@ def workflow_1(playlist_length):
 
     genre = ""
     if genre_select == 1:
-        genre = predict(input("Please input path to audio file: "))
+        genre = predict([input("Please input path to audio file: ")])
     elif genre_select == 2:
         genre_id = -1
         while genre_id == -1:
@@ -113,6 +114,7 @@ def get_song_option_label(i, song_number):
     song = find_spotify_info(song_number)
     return f'[{i}] {song["name"]} [by {song.artists}]'
 
+
 def get_song_option_label_with_indent(i, song_number):
     song = find_spotify_info(song_number)
     indent = 12 * ' '
@@ -141,22 +143,22 @@ def select_option(options, option_label_fn=get_default_option_label, message="")
 
     try:
         option = int(option)
-        valid_option = option > 0 and option <= num_options
+        valid_option = 0 < option <= num_options
     except ValueError:
         pass
 
-    return (option, valid_option)
+    return option, valid_option
 
 
 def input_bool(message):
     print(message)
     while True:
-        print('[y] Yes')
-        print('[n] No')
+        print('[Y] Yes')
+        print('[N] No')
         try_again = input().strip().lower()
-        if try_again == 'y':
+        if try_again == 'Y':
             return True
-        if try_again == 'n':
+        if try_again == 'N':
             return False
         print('What was that?')
 
@@ -187,13 +189,12 @@ def select_seed_song_number(song_numbers):
     while selecting_song:
         # print('Select the index of the song that you wish to add: ')
         (index, valid_index) = select_option(song_numbers,
-            option_label_fn=get_song_option_label_with_indent,
-            message='Select the index of the song that you wish to add: ')
+                                             option_label_fn=get_song_option_label_with_indent,
+                                             message='Select the index of the song that you wish to add: ')
 
         if not valid_index:
             print(f'Sorry. There is no song at index "{index}".')
             selecting_song = input_bool("Try another index?")
-
         else:
             song_number = song_numbers[index - 1]
             selecting_song = False
@@ -267,10 +268,10 @@ def workflow_2(playlist_length):
     seed_limit = playlist_length
 
     while not finished_workflow:
-        print('Please pick from the options below:')
+        print('Please pick from the options below. You need to add songs to the seed list to generate a playlist.')
         print('[1] Display seeds')
         if len(seeds) < seed_limit:
-            print('[2] Add song')
+            print('[2] Add song to seed list')
         if seeds:
             print('[3] Remove song')
             print('[4] Generate playlist')
@@ -323,13 +324,16 @@ def process():
         playlist = workflow_1(playlist_length)
     elif workflow == 2:
         playlist = workflow_2(playlist_length)
+    elif workflow == 3:
+        playlist = data.iloc[random.sample(range(0, len(data)), playlist_length)]
 
     if playlist is None:
         print('Cancelled')
     else:
         display_playlist(playlist)
 
-    print('FINISHED')
+    print('==============')
 
 
-process()
+while True:
+    process()
