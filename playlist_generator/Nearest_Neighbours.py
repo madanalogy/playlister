@@ -38,16 +38,6 @@ def find_song_numbers_by_keyword(keyword):
     return song_numbers
 
 
-def display_songs(songs):
-    message = f'Your Playlist:\n'
-    # Number playlist songs from 1 onwards
-    list_number = 1
-    for _, song in songs.iterrows():
-        message += f'{list_number}. {song["name"]} [by {song.artists}]\n'
-        list_number += 1
-    print(message)
-
-
 def find_songs_by_features(seeds, n=10, pca=True, components=7):
     x = data[features]
     x_scaled = StandardScaler().fit_transform(x)

@@ -3,7 +3,6 @@ from util.sentiment import extract
 from playlist_generator.Nearest_Neighbours import major_genres
 from playlist_generator.Nearest_Neighbours import find_spotify_info, find_song_numbers_by_keyword
 from playlist_generator.Nearest_Neighbours import find_songs_by_features, find_songs_by_valence
-from playlist_generator.Nearest_Neighbours import display_songs
 
 
 """Ask user how long they want the playlist to be (n) and to pick the workflow
@@ -111,11 +110,23 @@ def get_default_option_label(i, option):
 
 
 def get_song_option_label(i, song_number):
-    index = f'[{i}]'
-    indent = (len(index) + 4) * ' '
-
     song = find_spotify_info(song_number)
-    return f'{index} {song["name"]}\n{indent} [by {song.artists}]'
+    return f'[{i}] {song["name"]} [by {song.artists}]'
+
+def get_song_option_label_with_indent(i, song_number):
+    song = find_spotify_info(song_number)
+    indent = 12 * ' '
+    return f'[{i}] {song["name"]}\n{indent}[by {song.artists}]'
+
+
+def display_playlist(songs):
+    message = f'Your Playlist:\n'
+    # Number playlist songs from 1 onwards
+    list_number = 1
+    for _, song in songs.iterrows():
+        message += f'{list_number}. {song["name"]} [by {song.artists}]\n'
+        list_number += 1
+    print(message)
 
 
 def select_option(options, option_label_fn=get_default_option_label, message=""):
@@ -176,7 +187,7 @@ def select_seed_song_number(song_numbers):
     while selecting_song:
         # print('Select the index of the song that you wish to add: ')
         (index, valid_index) = select_option(song_numbers,
-            option_label_fn=get_song_option_label,
+            option_label_fn=get_song_option_label_with_indent,
             message='Select the index of the song that you wish to add: ')
 
         if not valid_index:
@@ -193,8 +204,7 @@ def select_seed_song_number(song_numbers):
 def display_seeds(seeds):
     print(f'Seeds:')
     for i, song_number in enumerate(seeds, start=1):
-        song = find_spotify_info(song_number)
-        print(f'[{i}] {song["name"]} [by {song.artists}]')
+        print(get_song_option_label(i, song_number))
     print()
 
 
@@ -317,7 +327,7 @@ def process():
     if playlist is None:
         print('Cancelled')
     else:
-        display_songs(playlist)
+        display_playlist(playlist)
 
     print('FINISHED')
 
