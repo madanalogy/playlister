@@ -6,32 +6,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 
-<<<<<<< HEAD
-# Takes in a list of audio paths.
-# Outputs label based on MLPClassifier
-def predict(audio_file_paths):
-    X = [AudioFeatureExtractor(fp, None).extract_features() for fp in audio_file_paths]
-    pred = pd.DataFrame.from_dict(data=X)[features]
-    return classifier.predict(scaler.transform(pred))
-
-def get_score():
-    return classifier.score(X_test_scaled, y_test)
-
-data_file_name = os.path.dirname(os.path.abspath(__file__)) + "/features.csv"
-try:
-    data_file_name = os.path.abspath(sys.argv[1])
-except IndexError:
-    print("Using default features.csv")
-
-if data_file_name == None:
-    sys.exit(2)
-
-print("Reading data from {}".format(data_file_name))
-=======
 from util.FeatureExtractor import AudioFeatureExtractor
 
 data_file_name = os.path.dirname(os.path.abspath(__file__)) + "/features.csv"
->>>>>>> master
 data = pd.read_csv(data_file_name)
 
 features = ['chroma_stft_mean', 'chroma_stft_var', 'rms_mean', 'rms_var', 'spectral_centroid_mean',
