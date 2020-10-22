@@ -155,7 +155,7 @@ def input_bool(message):
     while True:
         print('[Y] Yes')
         print('[N] No')
-        try_again = input().strip().lower()
+        try_again = input().strip().upper()
         if try_again == 'Y':
             return True
         if try_again == 'N':
