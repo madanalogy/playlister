@@ -298,7 +298,7 @@ def workflow_2(playlist_length):
 
         if option == '4':
             if seeds:
-                playlist_songs = find_songs_by_features(seeds)
+                playlist_songs = find_songs_by_features(seeds, n=playlist_length)
                 finished_workflow = True
                 continue
 
