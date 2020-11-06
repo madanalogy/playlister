@@ -31,4 +31,32 @@ def extract(string, use='vader'):
 
 
 if __name__ == '__main__':
-    print(extract(input()))
+    # print(extract(input()))
+    phrases = ['fantastical reality',
+        'melodramatic',
+        'mellow',
+        'Like the feeling after you take a warm shower and get into bed after a long day',
+        'rock',
+        'relaxing',
+        'happy',
+        'chill love songs',
+        'cheerful and upbeat',
+        'catchy',
+        'looking out at the ocean on a deserted beach',
+        'a rainy night',
+        'Something that can help me exercise',
+        'a sweet dream',
+        'emotional love songs',
+        'Something fun',
+        'Blazing Hot Fire',
+        'Girly',
+        'Birthday party',
+        'Wild and intense',
+        'Serene and Tranquil',
+        'inspiring and grand',
+        'Happy',
+        'Something I can relax and chill to']
+
+    for phrase in phrases:
+        print('{}: {}'.format(phrase, extract(phrase.lower()) * 10))
+

@@ -98,6 +98,7 @@ class AudioFeatureExtractor(object):
         # Eleventh field - 20 different mfccs
         num_of_mfccs = 20
         mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=num_of_mfccs)
+
         # Means are calculated across all time frame for every mfcc
         for i in range(20):
             mfcc_mean = np.mean(mfcc[i])
@@ -118,6 +119,39 @@ class AudioFeatureExtractor(object):
         result_dict["label"] = self.label
 
         return result_dict
+
+class MFCCExtractor(object):
+    def __init__(self, audio_file_path, label):
+        self.audio_file_path = audio_file_path
+        self.label = label
+
+    def extract_mfcc(self):
+        y, sr = librosa.load(self.audio_file_path)
+        result_dict = {}
+        # Zeroth field - audio file path
+        result_dict["filename"] = os.path.basename(self.audio_file_path)
+
+         # Eleventh field - 20 different mfccs
+        num_of_mfccs = 20
+        mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=num_of_mfccs)
+        '''
+        print(mfcc)
+        ss = mfcc.flatten().reshape((20, -1)) # To flatten and retrieve back
+        print('----')
+        print(ss)
+        '''
+        flat = mfcc.flatten()
+        for i in range(flat.shape[0]):
+            result_dict["f_{}".format(i)] = flat[i]
+        
+        result_dict["label"] = self.label
+        return result_dict
+
+
+
+audio_file_path = "./data_audio/genres_original/blues/blues.00000.wav"
+
+AudioFeatureExtractor(audio_file_path, 'blues').extract_features()
 
 '''Usage
 audio_file_path = '../data/genres_original/blues/blues.00000.wav'
