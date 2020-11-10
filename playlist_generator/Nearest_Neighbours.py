@@ -75,3 +75,25 @@ def find_songs_by_valence(genre, valence, n=10):
     data = data.sort_values(['diff', 'popularity'], ascending=[True, False])
     songs = data.head(n)
     return songs
+
+'''
+sorry for polluting this but i'm gonna write some code here to plot stuff
+'''
+import matplotlib.pyplot as plt
+x = data[features]
+x_scaled = StandardScaler().fit_transform(x)
+pca=PCA()  
+pca.n_components=11
+
+pca_data=pca.fit_transform(x_scaled)
+percentage_var_explained = pca.explained_variance_ratio_;  
+cum_var_explained=np.cumsum(percentage_var_explained)
+#plot PCA spectrum   
+plt.figure(1,figsize=(6,4))
+plt.clf()  
+plt.plot(cum_var_explained,linewidth=2, color='g')  
+plt.axis('tight')  
+plt.grid() 
+plt.xlabel('Number of Principal Components') 
+plt.ylabel('Cumulative Explained Variance')  
+plt.show()

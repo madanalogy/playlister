@@ -2,9 +2,11 @@ import os
 import sys
 
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import plot_confusion_matrix
 
 from util.FeatureExtractor import AudioFeatureExtractor
 
@@ -51,7 +53,15 @@ def predict(audio_file_paths):
 
 
 def get_score():
-    return classifier.score(X_test_scaled, y_test)
+    return classifier.score(X_test_scaled, y_test), classifier.score(X_train_scaled, y_train)
+
+
+def plot_cnf_mat():
+    title = "Confusion Matrix"
+    disp = plot_confusion_matrix(classifier, X_test_scaled, y_test,
+                                 cmap=plt.cm.Blues)
+    disp.ax_.set_title(title)
+    plt.show()
 
 
 if __name__ == '__main__':
@@ -64,7 +74,9 @@ if __name__ == '__main__':
     print("Genre: Reading data from {}".format(data_file_name))
     if data_file_name is None:
         sys.exit(2)
-
+    
+    '''
     test_inputs = ['../data_audio/genres_original/blues/blues.00010.wav',
                    '../data_audio/genres_original/blues/blues.00001.wav']
-    print(predict(test_inputs))  # ['blues', 'blues']'''
+    print(predict(test_inputs))  # ['blues', 'blues']
+    '''
